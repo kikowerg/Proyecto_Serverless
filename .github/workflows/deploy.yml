@@ -1,34 +1,43 @@
-name: Deploy Serverless
+name: Deploy Serverless API
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
-    name: Deploy a AWS Lambda
+    name: Deploy to AWS
     runs-on: ubuntu-latest
+    environment: deploy-serverless
 
     steps:
-      - name: Checkout del repositorio
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Instalar dependencias
-        run: npm install
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Configurar credenciales AWS
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: us-east-1
+      - name: Deploy with Serverless Framework
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_CONNECT_TIMEOUT: ${{ secrets.DB_CONNECT_TIMEOUT }}
+        run: npx serverless deploy --stage dev --region us-east-1
 
-      - name: Desplegar con Serverless Framework
-        run: npx serverless deploy --stage dev
+      - name: Test API has deployed
+        run: |
+          curl https://api.francisco.aulasxi.es/users
