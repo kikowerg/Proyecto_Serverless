@@ -9,19 +9,16 @@ const {
 
 const SECRET = "mi_clave_secreta";
 
-// DynamoDB
 const client = new DynamoDBClient({
   region: "us-east-1",
 });
 
 const dynamo = DynamoDBDocumentClient.from(client);
 
-// LOGIN
 module.exports.login = async (event) => {
   try {
     const body = JSON.parse(event.body);
 
-    // Usuario de prueba
     if (body.username !== "admin" || body.password !== "1234") {
       return {
         statusCode: 401,
