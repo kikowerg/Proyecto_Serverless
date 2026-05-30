@@ -1,0 +1,60 @@
+service: api-users
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: us-east-1
+  iam:
+    role: arn:aws:iam::597598788277:role/LabRole
+  # Variables de entorno para todas las funciones Lambda
+  environment:
+    DB_HOST: ${env:DB_HOST}
+    DB_PORT: ${env:DB_PORT}
+    DB_USER: ${env:DB_USER}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    DB_NAME: ${env:DB_NAME}
+    DB_CONNECT_TIMEOUT: ${env:DB_CONNECT_TIMEOUT}
+
+# funcion de login
+functions:
+  login:
+    handler: handler.login
+    events:
+      - http:
+          path: login
+          method: post
+  # funcion de pilla usuarios
+  users:
+    handler: handler.users
+    events:
+      - http:
+          path: users
+          method: get
+  # funcion de crear
+  create:
+    handler: CRUD.create
+    events:
+      - http:
+          path: create
+          method: post
+  # funcion de ver
+  see:
+    handler: CRUD.see
+    events:
+      - http:
+          path: see
+          method: post
+  # funcion de edit
+  edit:
+    handler: CRUD.edit
+    events:
+      - http:
+          path: edit
+          method: post
+  # funcion de borrar
+  delete:
+    handler: CRUD.delete
+    events:
+      - http:
+          path: delete
+          method: delete
